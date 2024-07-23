@@ -1,0 +1,41 @@
+# http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+
+BasedOnStyle: LLVM
+Standard: Cpp11
+IndentWidth: 4
+ColumnLimit: 160
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: true
+IndentCaseLabels: true
+PointerAlignment: Right
+AlignOperands: true
+AlignConsecutiveAssignments: true
+AccessModifierOffset: -2
+AllowShortCaseLabelsOnASingleLine: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+SortIncludes: false
+
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Right
+
+# break printf() arguments...
+PenaltyReturnTypeOnItsOwnLine: 1000
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackArguments: false
+BinPackParameters: false
+
+
+# AllowAllArgumentsOnNextLine: false
+# AllowAllParametersOfDeclarationOnNextLine: false 
+
+# BreakConstructorInitializersBeforeComma: true
+
+# PenaltyReturnTypeOnItsOwnLine: 9000
+# PenaltyBreakOpenParenthesis: 1
+
+# AlignAfterOpenBracket: DontAlign
+# AllowAllParametersOfDeclarationOnNextLine: true
+
+ 
+# AllowAllParametersOfDeclarationOnNextLine: true 
