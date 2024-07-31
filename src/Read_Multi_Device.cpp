@@ -299,20 +299,23 @@ void sendToEMON(PZEM_004T_SENSOR Sensor, PZEM_004T_Sensor_t &PZEM004data)
     {
         client.print(EMONCMS_NODE_GRID);
     }
+    
+    // http://192.168.0.194/emoncms/input/post.json?node=1&json={power1:100,power2:200,power3:300}
+
     client.print("&apikey=");      // apikey is mandatory, otherwise only
     client.print(EMONCMS_API_KEY); // integer (!) instead of float will be stored !!!
     client.print("&json={");
-    client.print("1"); // tagname of Current in old EmonCMS
+    client.print("1:"); // tagname of Current in old EmonCMS
     client.print(PZEM004data.Current);
-    client.print(",2"); // tagname of Power in old EmonCMS
+    client.print(",2:"); // tagname of Power in old EmonCMS
     client.print(PZEM004data.Power);
-    client.print(",Energy");
+    client.print(",Energy:");
     client.print(PZEM004data.Energy);
-    client.print(",Frequency");
+    client.print(",Frequency:");
     client.print(PZEM004data.Frequency);
-    client.print(",Voltage");
+    client.print(",Voltage:");
     client.print(PZEM004data.Voltage);
-    client.print(",PowerFactor");
+    client.print(",PowerFactor:");
     client.print(PZEM004data.PowerFactor);
     client.print("}");
     client.println(" HTTP/1.1"); // make sure there is a [space] BEFORE the HTTP
@@ -345,7 +348,7 @@ void sendToEMON(PZEM_004T_SENSOR Sensor, PZEM_004T_Sensor_t &PZEM004data)
 
     // client.stop(); // Stopping client // INFO               is this needed?!
     // Serial.println();
-    Serial.printf("closing EmonCMS connection\r\n");
+    Serial.printf("\r\nclosing EmonCMS connection\r\n");
 }
 
 void setup()
