@@ -424,12 +424,13 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
                         client.println();
                         client.println("<!DOCTYPE html><html>");
                         client.println("<head>");
+                        client.println("    <title>Powermeter Multi V3 beta</title>");
                         client.println("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
                         client.println("    <style>");
                         client.println("        html {font-size:1.5vw; font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
                         client.println("    </style>");
                         client.println("</head>");
-                        // web page body
+                        // web page body     
                         client.println("<body>");
                         client.println("<h1>Powermeter Multi V3 Beta</h1>");
                         client.println("<div style=\"display:flex; justify-content:space-around;\">");
