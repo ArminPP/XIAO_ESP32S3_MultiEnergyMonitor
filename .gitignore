@@ -4,3 +4,5 @@
 .vscode/launch.json
 .vscode/ipch
 *.zip
+*Credentials.cpp
+.env_ota
