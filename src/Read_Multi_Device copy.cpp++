@@ -53,8 +53,6 @@ const uint32_t EMONCMS_TIMEOUT    = 1500;
 bool EmOnCMSconnectionStatus      = false; // to check if connection to EmonCMS is established and show it in the webserver
 // sometimes, the ESP32 has problems with the connection to EmonCMS, so it is good to know if the connection is established
 
-char RESET_REASON[50] = {'\0'}; // reset reason
-
 WiFiServer WebServer(80);
 
 /*
@@ -80,45 +78,6 @@ enum PZEM_004T_SENSOR
     CONSUMPTION,
     GRID
 };
-
-/*
-Converts reason type to a C string.
-Type is located in /tools/sdk/esp32/include/esp_system/include/esp_system.h
-code borrowed from:
-https://github.com/espressif/arduino-esp32/blob/496b8411773243e1ad88a68652d6982ba2366d6b/libraries/ESP32/examples/ResetReason/ResetReason2/ResetReason2.ino#L22C1-L39C2
-*/
-const char *resetReasonName(esp_reset_reason_t r)
-// **********************************************************************
-// **********************************************************************
-{
-    switch (r)
-    {
-        case ESP_RST_UNKNOWN: return "Unknown";
-        case ESP_RST_POWERON: return "Power on or RST pin toggled";               // Power on or RST pin toggled
-        case ESP_RST_EXT: return "ExtPin";                                        // External pin - not applicable for ESP32
-        case ESP_RST_SW: return "Reboot";                                         // esp_restart()
-        case ESP_RST_PANIC: return "Crash";                                       // Exception/panic
-        case ESP_RST_INT_WDT: return "Interrupt watchdog (software or hardware)"; // Interrupt watchdog (software or hardware)
-        case ESP_RST_TASK_WDT: return "Task watchdog";                            // Task watchdog
-        case ESP_RST_WDT: return "Other watchdog";                                // Other watchdog
-        case ESP_RST_DEEPSLEEP: return "deep sleep";                              // Reset after exiting deep sleep mode
-        case ESP_RST_BROWNOUT: return "Brownout reset (software or hardware)";    // Brownout reset (software or hardware)
-        case ESP_RST_SDIO: return "SDIO";                                         // Reset over SDIO
-        default: return "";
-    }
-}
-
-/*
-  get the reset reason of the ESP and store it in a global variable for the webserver
-*/
-void getResetReason()
-// **********************************************************************
-// **********************************************************************
-{
-    esp_reset_reason_t reason = esp_reset_reason();
-    Serial.printf("Reset reason: %s\r\n", resetReasonName(reason));
-    snprintf(RESET_REASON, sizeof(RESET_REASON), "%s", resetReasonName(reason));
-}
 
 /*
  use LED to display status of the ESP
@@ -464,8 +423,8 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
     {                                             // if you get a client,
         Serial.printf("\r\nnew WiFi client\r\n"); // print a message out the serial port
         String currentLine = "";                  // make a String to hold incoming data from the client
-        while (client.connected())                // loop while the client's connected
-        {
+        while (client.connected())                // loop while the client's connected)
+        {                                         // loop while the client's connected
             if (client.available())
             {                           // if there's bytes to read from the client,
                 char c = client.read(); // read a byte, then
@@ -492,7 +451,6 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
                         // web page body
                         client.println("<body>");
                         client.printf("<h1>Powermeter Multi V3.%s Beta</h1>", BUILD_NUMBER);
-                        client.println("<hr>");
                         client.println("<div style=\"display:flex; justify-content:space-around;\">");
                         client.println("<div>");
                         client.print("<p style=\"font-size:2vw;font-weight:bold;\"><br>Solar Data:</p>");
@@ -522,9 +480,7 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
                         client.printf("<p>PowerFactor: %5.2f</p>", GridData.PowerFactor);
                         client.println("</div>");
                         client.println("</div>");
-                        client.println("<hr>");
-
-                        client.printf("<p>rssi: %d&emsp;&emsp;|&emsp;&emsp;Last reset reason: %s</p>", WiFi.RSSI(), RESET_REASON);
+                        client.printf("<p>rssi: %d</p>", WiFi.RSSI());
 
                         uint16_t dd = 0;
                         byte hh     = 0;
@@ -533,7 +489,7 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
                         uint16_t ms = 0;
                         ElapsedRuntime(dd, hh, mm, ss, ms);
 
-                        client.printf("<p>Runtime: %05d|%02i:%02i:%02i:%03i&emsp;&emsp;|&emsp;&emsp;Compiled at: %s %s </p>", dd, hh, mm, ss, ms, __DATE__, __TIME__);
+                        client.printf("<p>Runtime: %05d|%02i:%02i:%02i:%03i </p>", dd, hh, mm, ss, ms);
                         client.printf("<p>Last EmonCMS status: %s</p>", EmOnCMSconnectionStatus ? "connected" : "disconnected");
                         client.println("</body>");
                         client.println("</html>");
@@ -558,7 +514,6 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
         Serial.printf("\r\nWiFI client disconnected\r\n");
     }
 }
-// */
 
 void setup()
 // **********************************************************************
@@ -571,7 +526,6 @@ void setup()
     Serial.begin(115200);
 
     // pinMode(LED_BUILTIN, OUTPUT); // only for blink
-    getResetReason();
 
     delay(2000);
     Serial.println("Powermeter with multiple PZEM004T sensors"); // Console print
