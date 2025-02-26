@@ -190,12 +190,24 @@ void readPZEM004Data(PZEM004Tv30 &pzem, PZEM_004T_Sensor_t &PZEM004data)
     {
         // tests if value is "Nan" (then set to 0.0) or a valid float ...
         // generates "Nan" for testing ==>  float voltage = float(sqrt(-2.0));
-        PZEM004data.Voltage     = isnan(pzem.voltage()) ? 0.0 : pzem.voltage();
-        PZEM004data.Current     = isnan(pzem.current()) ? 0.0 : pzem.current();
-        PZEM004data.Power       = isnan(pzem.power()) ? 0.0 : pzem.power();
-        PZEM004data.Energy      = isnan(pzem.energy()) ? 0.0 : pzem.energy();
-        PZEM004data.Frequency   = isnan(pzem.frequency()) ? 0.0 : pzem.frequency();
+        PZEM004data.Voltage = isnan(pzem.voltage()) ? 0.0 : pzem.voltage();
+        esp_task_wdt_reset(); // feed the watchdog
+        delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
+        PZEM004data.Current = isnan(pzem.current()) ? 0.0 : pzem.current();
+        esp_task_wdt_reset(); // feed the watchdog
+        delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
+        PZEM004data.Power = isnan(pzem.power()) ? 0.0 : pzem.power();
+        esp_task_wdt_reset(); // feed the watchdog
+        delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
+        PZEM004data.Energy = isnan(pzem.energy()) ? 0.0 : pzem.energy();
+        esp_task_wdt_reset(); // feed the watchdog
+        delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
+        PZEM004data.Frequency = isnan(pzem.frequency()) ? 0.0 : pzem.frequency();
+        esp_task_wdt_reset(); // feed the watchdog
+        delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
         PZEM004data.PowerFactor = isnan(pzem.pf()) ? 0.0 : pzem.pf();
+        esp_task_wdt_reset(); // feed the watchdog
+        delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
     }
 }
 
@@ -430,6 +442,8 @@ void sendToEMON(PZEM_004T_SENSOR Sensor, PZEM_004T_Sensor_t &PZEM004data)
     {
         if (millis() - timeout > EmonCmsWiFiTimeout)
         {
+            esp_task_wdt_reset(); // feed the watchdog
+            delay(1);             // this is to avoid watchdog reset, and is mandatory for Arduino V3 (so I decided to use it in V2 too)
             Serial.printf(">>> EmonCMS client timeout !\r\n");
             client.stop();
             return;
@@ -438,11 +452,11 @@ void sendToEMON(PZEM_004T_SENSOR Sensor, PZEM_004T_Sensor_t &PZEM004data)
 
     // DEBUG                                                              .
     // Read all the lines of the reply from server and print them to Serial
-    while (client.available())
-    {
-        char c = client.read();
-        Serial.write(c);
-    }
+    // while (client.available())
+    // {
+    //     char c = client.read();
+    //     Serial.write(c);
+    // }
     // INFO client stop is needed                                      !!!
     // https://github.com/esp8266/Arduino/issues/72#issuecomment-94782500
     //     "So the .stop() call should only be necessary if client is not a local
@@ -524,7 +538,10 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
                         client.println("</div>");
                         client.println("<hr>");
 
-                        client.printf("<p>rssi: %d&emsp;&emsp;|&emsp;&emsp;Last reset reason: %s</p>", WiFi.RSSI(), RESET_REASON);
+                        client.printf("<p>rssi: %d&emsp;&emsp;|&emsp;&emsp;Rep=60: %s&emsp;&emsp;|&emsp;&emsp;Last reset reason: %s</p>",
+                                      WiFi.RSSI(),
+                                      WiFi.BSSIDstr().c_str(),
+                                      RESET_REASON);
 
                         uint16_t dd = 0;
                         byte hh     = 0;
@@ -533,7 +550,8 @@ void doWebserver(Client &client, PZEM_004T_Sensor_t &SolarData, PZEM_004T_Sensor
                         uint16_t ms = 0;
                         ElapsedRuntime(dd, hh, mm, ss, ms);
 
-                        client.printf("<p>Runtime: %05d|%02i:%02i:%02i:%03i&emsp;&emsp;|&emsp;&emsp;Compiled at: %s %s </p>", dd, hh, mm, ss, ms, __DATE__, __TIME__);
+                        client.printf(
+                            "<p>Runtime: %05d|%02i:%02i:%02i:%03i&emsp;&emsp;|&emsp;&emsp;Compiled at: %s %s </p>", dd, hh, mm, ss, ms, __DATE__, __TIME__);
                         client.printf("<p>Last EmonCMS status: %s</p>", EmOnCMSconnectionStatus ? "connected" : "disconnected");
                         client.println("</body>");
                         client.println("</html>");
